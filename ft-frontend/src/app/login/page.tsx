@@ -1,17 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter();
+  const [token, setToken] = useState<string | null>(null);
+  const [success, setSuccess] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
+    setToken(null);
 
     try {
       const res = await fetch('http://localhost:3000/auth/login', {
@@ -26,11 +29,10 @@ export default function LoginPage() {
         throw new Error(data.message || 'Login failed');
       }
 
-      // Optionally store the token in localStorage
-      localStorage.setItem('token', data.access_token);
-
-      // Redirect to dashboard
-      router.push('/dashboard');
+      // ✅ Store token in sessionStorage
+      sessionStorage.setItem('token', data.access_token);
+      setToken(data.access_token);
+      setSuccess('Login successful');
     } catch (err: any) {
       setError(err.message);
     }
@@ -39,6 +41,7 @@ export default function LoginPage() {
   return (
     <div className="max-w-md mx-auto mt-16 p-6 border rounded shadow">
       <h2 className="text-2xl font-bold mb-4">Login</h2>
+
       <form onSubmit={handleLogin} className="space-y-4">
         <input
           type="email"
@@ -65,6 +68,21 @@ export default function LoginPage() {
       </form>
 
       {error && <p className="text-red-600 mt-3">{error}</p>}
+      {success && (
+        <p className="mt-4 text-green-600 text-center">
+          {success}.{' '}
+          <Link href="/budget" className="text-blue-600 underline">
+            Go to Budget
+          </Link>
+        </p>
+      )}
+
+      <p className="mt-4 text-sm text-center">
+        Don&apos;t have an account?{' '}
+        <Link href="/signup" className="text-blue-600 underline">
+          Sign up
+        </Link>
+      </p>
     </div>
   );
 }
