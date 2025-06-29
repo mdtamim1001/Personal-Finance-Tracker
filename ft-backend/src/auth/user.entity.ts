@@ -24,7 +24,6 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  // 👇 new unified field for OTP & expiry
   @Column({ type: 'jsonb', nullable: true })
   resetOtp: ResetOtp | null;
 

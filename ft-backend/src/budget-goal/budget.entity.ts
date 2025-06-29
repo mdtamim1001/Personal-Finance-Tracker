@@ -12,6 +12,15 @@ export class Budget {
   @Column('decimal')
   amount: number;
 
+  @Column({
+  type: 'date',
+  transformer: {
+    from: (value: string | Date) => new Date(value),
+    to: (value: Date) => value,
+  },
+})
+month: Date;
+
   @ManyToOne(() => User, (user) => user.budgets)
   user: User;
 }

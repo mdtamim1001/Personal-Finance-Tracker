@@ -1,4 +1,14 @@
-import { Controller, Post, Get, Body, Patch, Param, Delete, UseGuards, Res } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Res,
+} from '@nestjs/common';
 import { BudgetService } from './budget.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { GetUser } from '../auth/decorators/get-user.decorator';
@@ -10,15 +20,17 @@ import { Response } from 'express';
 export class BudgetController {
   constructor(private readonly budgetService: BudgetService) {}
 
+  // ✅ Set a category budget for a specific month
   @Post()
   async setCategoryBudget(
-    @Body() body: { category: string; amount: number },
+    @Body() body: { category: string; amount: number; month: string }, // e.g. { month: "2024-07" }
     @GetUser() user: User,
   ) {
-    const { category, amount } = body;
-    return this.budgetService.setCategoryBudget(category, amount, user);
+    const { category, amount, month } = body;
+    return this.budgetService.setCategoryBudget(category, amount, month, user);
   }
 
+  // ✅ Get all budgets (for all months) for user
   @Get()
   async getUserBudgets(@GetUser() user: User) {
     return this.budgetService.getUserBudgets(user.id);
@@ -37,20 +49,25 @@ export class BudgetController {
   async deleteBudget(@Param('id') id: string, @GetUser() user: User) {
     return this.budgetService.deleteBudget(+id, user.id);
   }
-  // report.controller.ts
+
+  // ✅ Category + month summary report
   @Get('summary')
   getSummary(@GetUser() user: User) {
-  return this.budgetService.getBudgetSummary(user.id);
-}
+    return this.budgetService.getBudgetSummary(user.id);
+  }
 
-@Get('summary/download-txt')
-async downloadBudgetSummaryTxt(@GetUser() user: User, @Res() res: Response) {
-  const summaryText = await this.budgetService.getBudgetSummaryTxt(user.id);
+  // ✅ Download summary as .txt file
+  @Get('summary/download-txt')
+  async downloadBudgetSummaryTxt(@GetUser() user: User, @Res() res: Response) {
+    const summaryText = await this.budgetService.getBudgetSummaryTxt(user.id);
+    res.header('Content-Type', 'text/plain');
+    res.attachment('budget-summary.txt');
+    return res.send(summaryText);
+  }
 
-  res.header('Content-Type', 'text/plain');
-  res.attachment('budget-summary.txt');
-  return res.send(summaryText);
-}
-
-
+  // ✅ Monthly trend for line chart
+  @Get('trend')
+  getMonthlyTrend(@GetUser() user: User) {
+    return this.budgetService.getMonthlyBudgetTrend(user.id);
+  }
 }

@@ -11,8 +11,8 @@ export class EmailService {
       port: 587,
       secure: false, // use TLS
       auth: {
-        user: 'tamimyousuf2001@gmail.com',     // 👈 replace
-        pass: 'iqvr frgb ocfc ubbe'    // 👈 replace with App Password (not your real Gmail password)
+        user: 'tamimyousuf2001@gmail.com',  
+        pass: 'iqvr frgb ocfc ubbe'    
       }
     });
   }
