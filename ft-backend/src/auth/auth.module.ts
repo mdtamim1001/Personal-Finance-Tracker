@@ -1,24 +1,22 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './user.entity';
-import { Budget } from '../budget-goal/budget.entity';
+import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './jwt.strategy';
-import { EmailModule } from '../email/email.module';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { UserSchema } from './user.entity'; // Import the User schema
+import { User } from './user.entity'; // Import the User interface
+import { EmailService } from '../email/email.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Budget]),
+    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     JwtModule.register({
-      secret: 'secretKey',
+      secret: process.env.JWT_SECRET || 'supersecret',
       signOptions: { expiresIn: '1d' },
     }),
-    EmailModule,
   ],
-  controllers: [AuthController],   // <-- AuthController must be listed here
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService],
+  controllers: [AuthController], // ✅ controllers go here
+  providers: [AuthService, EmailService], // ✅ services/providers go here
+  exports: [AuthService], // ✅ only export services used in other modules
 })
 export class AuthModule {}

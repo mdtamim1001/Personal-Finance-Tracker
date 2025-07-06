@@ -1,36 +1,38 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import { Budget } from '../budget-goal/budget.entity';
-import { Expense } from '../expense/expense.entity';
+import { Schema } from 'mongoose';
 
-export interface ResetOtp {
-  code: string;
-  expiresAt: Date;
-}
+export const UserSchema = new Schema(
+  {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    resetOtp: { 
+      code: { type: String },
+      expiresAt: { type: Date },
+    },
+    budgets: [{ type: Schema.Types.ObjectId, ref: 'Budget' }],
+    expense: [{ type: Schema.Types.ObjectId, ref: 'Expense' }],
+  },
+  {
+    timestamps: true, // automatically handles createdAt & updatedAt
+  }
+);
 
-@Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column({ unique: true })
+export interface User {
+  _id?: string;
   email: string;
-
-  @Column()
   password: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @Column({ type: 'jsonb', nullable: true })
-  resetOtp: ResetOtp | null;
-
-  @OneToMany(() => Budget, (budget) => budget.user)
-  budgets: Budget[];
-  
-  @OneToMany(() => Expense, (expense) => expense.user)
-  expense: Expense[];
+  resetOtp?: {
+    code: string;
+    expiresAt: Date;
+  };
+  budgets?: string[]; // Array of Budget IDs
+  expense?: string[]; // Array of Expense IDs
 }
-
