@@ -26,6 +26,7 @@ export const UserSchema = new Schema(
 );
 
 export interface User {
+  id(arg0: number, amount: number, id: any): unknown;
   _id?: string;
   email: string;
   password: string;

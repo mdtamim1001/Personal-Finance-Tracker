@@ -21,12 +21,13 @@ export class AuthController {
     return this.authService.login(loginDto.email, loginDto.password);
   }
 
+
   @UseGuards(JwtAuthGuard)
   @Get('me')
   getMyAccount(@GetUser() user) {
     return {
-      id: user.sub,
-      email: user.email
+      id: user.id,
+      email: user.email,
     };
   }
   
